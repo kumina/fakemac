@@ -8,4 +8,4 @@ fi
 export MAC_ADDRESS="$1"
 shift
 
-LD_PRELOAD=/usr/lib/libfakemac.so "$@"
+LD_PRELOAD=/usr/lib/libfakemac.so exec "$@"
