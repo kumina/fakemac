@@ -1,0 +1,9 @@
+Source: fakemac
+Section: misc
+Priority: optional
+Maintainer: Ed Schouten <ed@kumina.nl>
+Build-Depends: debhelper (>= 5), build-essential
+
+Package: fakemac
+Architecture: any
+Description: Spoof the MAC address for applications on a system.

@@ -1,0 +1,27 @@
+#!/usr/bin/make -f
+
+build:
+	dh_testdir
+	$(MAKE)
+	touch build
+
+clean:
+	dh_testdir
+	rm -f build
+	$(MAKE) clean
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_installdirs usr/bin usr/lib
+	install -m 755 fakemac.sh ${CURDIR}/debian/fakemac/usr/bin/fakemac
+	install -m 644 libfakemac.so ${CURDIR}/debian/fakemac/usr/lib/
+
+binary: build install
+	dh_testdir -s
+	dh_strip -s
+	dh_gencontrol -s
+	dh_md5sums -s
+	dh_builddeb -s
+
+.PHONY: clean install binary
