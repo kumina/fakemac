@@ -1,3 +1,29 @@
+/*-
+ * Copyright (c) 2011 Ed Schouten <ed@kumina.nl>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
+
 #define	_GNU_SOURCE
 
 #include <sys/ioctl.h>
@@ -11,7 +37,7 @@
 #include <string.h>
 
 static unsigned char mac[6];
-static int (*orig_ioctl)(int, unsigned long, void *) = NULL;
+static int (*orig_ioctl)(int, unsigned long, void *);
 
 static int
 hex_to_bin(char ch)
@@ -21,26 +47,27 @@ hex_to_bin(char ch)
 		return (ch - '0');
 	if (ch >= 'A' && ch <= 'F')
 		return (ch - 'A' + 10);
-	return (ch - 'a' + 10);
+	if (ch >= 'a' && ch <= 'f')
+		return (ch - 'a' + 10);
+	return (-1);
 }
 
 static int
 mac_pton(const char *s, unsigned char mac[6])
 {
 	size_t i;
+	int r;
 
 	for (i = 0; i < 6; i++) {
-		if (strchr("0123456789abcdefABCDEF", s[i * 3]) == NULL)
+		if ((r = hex_to_bin(s[i * 3])) == -1)
 			return (-1);
-		if (strchr("0123456789abcdefABCDEF", s[i * 3 + 1]) == NULL)
+		mac[i] = r << 4;
+		if ((r = hex_to_bin(s[i * 3 + 1])) == -1)
 			return (-1);
-		if (i != 5 && s[i * 3 + 2] != ':')
+		mac[i] |= r;
+		if (s[i * 3 + 2] != (i == 5 ? '\0' : ':'))
 			return (-1);
 	}
-	if (s[17] != '\0')
-		return (-1);
-	for (i = 0; i < 6; i++)
-		mac[i] = (hex_to_bin(s[i * 3]) << 4) | hex_to_bin(s[i * 3 + 1]);
 	return (0);
 }
 
