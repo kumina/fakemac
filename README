@@ -12,5 +12,4 @@ For example:
 How to install:
 
 	$ make
-	$ install -m 555 fakemac.sh /usr/bin/fakemac
-	$ install -m 444 libfakemac.so /usr/lib/libfakemac.so
+	$ sudo make install
