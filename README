@@ -1,0 +1,16 @@
+fakemac: Spoof MAC addresses
+
+This utility allows you to run an application in such a way that the MAC
+addresses obtained by the process are fixed to a certain value.
+
+For example:
+
+	$ fakemac de:ad:ca:fe:ba:be ifconfig | grep HWaddr
+	eth0      Link encap:Ethernet  HWaddr de:ad:ca:fe:ba:be
+	wlan0     Link encap:Ethernet  HWaddr de:ad:ca:fe:ba:be
+
+How to install:
+
+	$ make
+	$ install -m 555 fakemac.sh /usr/bin/fakemac
+	$ install -m 444 libfakemac.so /usr/lib/libfakemac.so
