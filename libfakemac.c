@@ -53,7 +53,7 @@ hex_to_bin(char ch)
 }
 
 static int
-mac_pton(const char *s, unsigned char mac[6])
+mac_pton(const char *s, unsigned char buf[6])
 {
 	size_t i;
 	int r;
@@ -61,10 +61,10 @@ mac_pton(const char *s, unsigned char mac[6])
 	for (i = 0; i < 6; i++) {
 		if ((r = hex_to_bin(s[i * 3])) == -1)
 			return (-1);
-		mac[i] = r << 4;
+		buf[i] = r << 4;
 		if ((r = hex_to_bin(s[i * 3 + 1])) == -1)
 			return (-1);
-		mac[i] |= r;
+		buf[i] |= r;
 		if (s[i * 3 + 2] != (i == 5 ? '\0' : ':'))
 			return (-1);
 	}
@@ -117,7 +117,11 @@ ioctl(int fd, unsigned long request, ...)
 
 	if ((ret = orig_ioctl(fd, request, ifr)) != 0)
 		return (ret);
+#ifdef SIOCGIFHWADDR
 	if (request == SIOCGIFHWADDR)
 		memcpy(ifr->ifr_hwaddr.sa_data, mac, sizeof(mac));
+#else
+#error Operating system not supported
+#endif
 	return (0);
 }
